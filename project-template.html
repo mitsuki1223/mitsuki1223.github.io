@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project - Nati</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Animation -->
+    <div id="pageLoader" class="page-loader">
+        <div class="loader">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navbar">
+        <a href="index.html" class="logo">NATI</a>
+        <div class="dropdown">
+            <button class="dropbtn">MENU ☰</button>
+            <div class="dropdown-content">
+                <a href="index.html">HOME</a>
+                <a href="portfolio.html">PORTFOLIO</a>
+                <a href="blog.html">BLOG</a>
+                <a href="contact.html">CONTACT</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="project-container">
+        <a href="portfolio.html" class="back-link">← Back to Portfolio</a>
+        <div id="project-content">
+            <!-- Project content will be loaded here -->
+        </div>
+    </main>
+
+    <script>
+        // Constants
+        const SHEET_ID = '1wTn5WRbkFV6OIGT3ouCL8LaPSPjvR-B4XwyodnYVzFk';
+        const SHEET_NAME = 'Sheet1';
+        const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+        async function loadProject() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('id');
+
+            if (!projectId) {
+                window.location.href = 'portfolio.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(GOOGLE_SHEET_URL);
+                const text = await response.text();
+                const data = JSON.parse(text.substr(47).slice(0, -2));
+                
+                const project = data.table.rows.slice(1).find(row => row.c[0]?.v == projectId);
+                
+                if (!project) {
+                    throw new Error('Project not found');
+                }
+
+                // Get project details
+                const title = project.c[1]?.v || '';
+                const description = project.c[2]?.v || '';
+                const imageUrl = project.c[3]?.v || '';
+                const projectUrl = project.c[4]?.v || '';
+                const category = project.c[5]?.v || '';
+
+                // Create image HTML only if imageUrl exists and is not empty
+                const imageHTML = imageUrl ? `
+                    <img src="${imageUrl}" 
+                         alt="${title}" 
+                         class="project-image"
+                         loading="lazy">
+                ` : '';
+
+                // Format description text to preserve line breaks
+                const formattedDescription = description.replace(/\n/g, '<br>');
+
+                const projectContent = document.getElementById('project-content');
+                projectContent.innerHTML = `
+                    <header class="project-header">
+                        <h1 class="project-title">${title}</h1>
+                        <div class="project-category">${category}</div>
+                    </header>
+                    
+                    ${imageHTML}
+                    
+                    <div class="project-description-container">
+                        <h2>About This Project</h2>
+                        <div class="project-description">
+                            ${formattedDescription}
+                        </div>
+                    </div>
+                    
+                    ${projectUrl ? `
+                        <a href="${projectUrl}" 
+                           class="project-link" 
+                           target="_blank">
+                            View Project
+                        </a>
+                    ` : ''}
+
+                    <div class="share-container">
+                        <button class="share-button" onclick="toggleShareMenu()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="18" cy="5" r="3"/>
+                                <circle cx="6" cy="12" r="3"/>
+                                <circle cx="18" cy="19" r="3"/>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                            </svg>
+                            Share
+                        </button>
+                        
+                        <div class="share-menu" id="shareMenu">
+                            <a href="#" onclick="shareOnFacebook()" class="share-item facebook">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                                </svg>
+                                Facebook
+                            </a>
+                            
+                            <a href="#" onclick="shareOnInstagram()" class="share-item instagram">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                                </svg>
+                                Instagram
+                            </a>
+                            
+                            <a href="#" onclick="shareOnYouTube()" class="share-item youtube">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/>
+                                    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>
+                                </svg>
+                                YouTube
+                            </a>
+
+                            <a href="#" onclick="shareOnTwitter()" class="share-item twitter">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+                                </svg>
+                                Twitter
+                            </a>
+
+                            <a href="#" onclick="shareOnLinkedIn()" class="share-item linkedin">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                                    <rect x="2" y="9" width="4" height="12"/>
+                                    <circle cx="4" cy="4" r="2"/>
+                                </svg>
+                                LinkedIn
+                            </a>
+
+                            <button onclick="copyLink()" class="share-item copy-link">
+                                <div class="copy-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                    </svg>
+                                </div>
+                                <span class="copy-text">Copy Link</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Update page title
+                document.title = `${title} - Nati`;
+
+                // Hide loader
+                document.getElementById('pageLoader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('pageLoader').style.display = 'none';
+                }, 500);
+
+            } catch (error) {
+                console.error('Error loading project:', error);
+                document.getElementById('project-content').innerHTML = `
+                    <div class="error-message">
+                        <p>Error loading project. Please try again later.</p>
+                        <p>Error details: ${error.message}</p>
+                        <a href="portfolio.html" class="back-link">Return to Portfolio</a>
+                    </div>
+                `;
+                document.getElementById('pageLoader').style.display = 'none';
+            }
+        }
+
+        // Load project when page loads
+        window.addEventListener('load', loadProject);
+
+        // Share menu toggle
+        function toggleShareMenu() {
+            const menu = document.getElementById('shareMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Share functions
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        }
+
+        function shareOnInstagram() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied! Open Instagram and paste the link in your story or post.');
+            });
+        }
+
+        function shareOnYouTube() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied! You can paste this link in your YouTube video description or community post.');
+            });
+        }
+
+        function shareOnTwitter() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank');
+        }
+
+        function shareOnLinkedIn() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                const copyButton = document.querySelector('.copy-link');
+                const copyText = copyButton.querySelector('.copy-text');
+                const copyIcon = copyButton.querySelector('.copy-icon');
+                
+                // Save original content
+                const originalIcon = copyIcon.innerHTML;
+                const originalText = copyText.textContent;
+                
+                // Update to success state
+                copyButton.classList.add('success');
+                copyText.textContent = 'Copied!';
+                copyIcon.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                `;
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    copyButton.classList.remove('success');
+                    copyText.textContent = originalText;
+                    copyIcon.innerHTML = originalIcon;
+                }, 2000);
+            });
+        }
+
+        // Close share menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const shareContainer = document.querySelector('.share-container');
+            const shareMenu = document.getElementById('shareMenu');
+            if (!shareContainer.contains(e.target) && shareMenu.classList.contains('active')) {
+                shareMenu.classList.remove('active');
+            }
+        });
+    </script>
+
+    <style>
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .project-container {
+            padding: 120px 5% 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .project-header {
+            margin-bottom: 40px;
+        }
+
+        .project-title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .project-category {
+            color: var(--gray-text);
+            font-size: 1.2em;
+        }
+
+        .project-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .project-description-container {
+            margin: 40px 0;
+            padding: 30px;
+            background: var(--darker-bg);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .project-description-container h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: var(--light-text);
+            font-weight: 500;
+        }
+
+        .project-description {
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.1em;
+            white-space: pre-line;
+            font-weight: 300;
+            letter-spacing: 0.2px;
+        }
+
+        .project-description p {
+            margin-bottom: 15px;
+        }
+
+        /* Make links within description stand out */
+        .project-description a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .project-description a:hover {
+            color: #2ecc71;
+        }
+
+        /* Add some subtle hover effect to the container */
+        .project-description-container:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .project-description-container {
+                padding: 20px;
+            }
+
+            .project-description {
+                font-size: 1em;
+            }
+        }
+
+        .project-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--light-text);
+            color: var(--dark-bg);
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .project-link:hover {
+            background: var(--gray-text);
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--gray-text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--light-text);
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray-text);
+        }
+
+        /* Loading animation */
+        .loader {
+            display: flex;
+            gap: 10px;
+        }
+
+        .circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--light-text);
+            animation: bounce 0.5s alternate infinite;
+        }
+
+        .circle:nth-child(2) { animation-delay: 0.15s; }
+        .circle:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes bounce {
+            to {
+                transform: translateY(-10px);
+                opacity: 0.3;
+            }
+        }
+
+        /* When there's no image, add some extra spacing at the top */
+        .project-header + .project-description {
+            margin-top: 40px;
+        }
+
+        /* Add platform-specific colors */
+        .share-item.instagram:hover {
+            color: #E4405F;
+        }
+
+        .share-item.youtube:hover {
+            color: #FF0000;
+        }
+
+        /* Share Container and Button */
+        .share-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .share-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--light-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .share-button:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Share Menu */
+        .share-menu {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            margin-bottom: 15px;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 220px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform-origin: bottom right;
+            animation: shareMenuOpen 0.3s ease forwards;
+        }
+
+        .share-menu.active {
+            display: flex;
+        }
+
+        /* Share Items */
+        .share-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--light-text);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            font-weight: 500;
+        }
+
+        .share-item svg {
+            transition: all 0.2s ease;
+        }
+
+        /* Platform-specific styling */
+        .share-item.facebook:hover {
+            background: rgba(24, 119, 242, 0.1);
+            border-color: rgba(24, 119, 242, 0.3);
+            color: #1877F2;
+        }
+
+        .share-item.instagram:hover {
+            background: rgba(228, 64, 95, 0.1);
+            border-color: rgba(228, 64, 95, 0.3);
+            color: #E4405F;
+        }
+
+        .share-item.youtube:hover {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: rgba(255, 0, 0, 0.3);
+            color: #FF0000;
+        }
+
+        .share-item.twitter:hover {
+            background: rgba(29, 161, 242, 0.1);
+            border-color: rgba(29, 161, 242, 0.3);
+            color: #1DA1F2;
+        }
+
+        .share-item.linkedin:hover {
+            background: rgba(0, 119, 181, 0.1);
+            border-color: rgba(0, 119, 181, 0.3);
+            color: #0077B5;
+        }
+
+        .share-item.copy-link:hover {
+            background: rgba(46, 204, 113, 0.1);
+            border-color: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+        }
+
+        /* Hover Effects */
+        .share-item:hover svg {
+            transform: scale(1.1);
+        }
+
+        /* Animations */
+        @keyframes shareMenuOpen {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .share-container {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .share-button {
+                padding: 10px 20px;
+            }
+
+            .share-menu {
+                min-width: 200px;
+            }
+
+            .share-item {
+                padding: 10px 14px;
+            }
+        }
+
+        /* Dark Mode Enhancement */
+        @media (prefers-color-scheme: dark) {
+            .share-menu {
+                background: rgba(15, 15, 15, 0.95);
+            }
+        }
+
+        .copy-link {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .copy-icon {
+            display: flex;
+            align-items: center;
+        }
+
+        .copy-text {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Success state styles */
+        .copy-link.success .copy-icon svg {
+            animation: checkmark 0.3s ease forwards;
+        }
+
+        .copy-link.success .copy-text {
+            color: #2ecc71;
+        }
+
+        @keyframes checkmark {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.8);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Update the copy link button styles */
+        .share-item.copy-link {
+            background: transparent;  /* Remove white background */
+            border: none;            /* Remove default button border */
+            width: 100%;            /* Full width like other items */
+            font-size: inherit;     /* Match text size */
+            font-family: inherit;   /* Match font family */
+            cursor: pointer;        /* Show pointer cursor */
+            display: flex;          /* Keep flex layout */
+            align-items: center;    /* Center items */
+            gap: 12px;             /* Match spacing */
+            padding: 12px 16px;     /* Match padding */
+            color: var(--light-text); /* Match text color */
+            transition: all 0.2s ease;
+        }
+
+        .share-item.copy-link:hover {
+            background: rgba(46, 204, 113, 0.1);
+            border-color: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+        }
+    </style>
+
+    <!-- Update the share menu content -->
+    <div class="share-menu" id="shareMenu">
+        <a href="#" onclick="shareOnFacebook()" class="share-item facebook">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+            Facebook
+        </a>
+        
+        <a href="#" onclick="shareOnInstagram()" class="share-item instagram">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+            Instagram
+        </a>
+        
+        <a href="#" onclick="shareOnYouTube()" class="share-item youtube">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/>
+                <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>
+            </svg>
+            YouTube
+        </a>
+
+        <a href="#" onclick="shareOnTwitter()" class="share-item twitter">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+            </svg>
+            Twitter
+        </a>
+
+        <a href="#" onclick="shareOnLinkedIn()" class="share-item linkedin">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                <rect x="2" y="9" width="4" height="12"/>
+                <circle cx="4" cy="4" r="2"/>
+            </svg>
+            LinkedIn
+        </a>
+
+        <button onclick="copyLink()" class="share-item copy-link">
+            <div class="copy-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+            </div>
+            <span class="copy-text">Copy Link</span>
+        </button>
+    </div>
+
+    <!-- Add these functions to your script -->
+    <script>
+        function shareOnInstagram() {
+            // Instagram doesn't have a direct share URL, 
+            // so we'll copy the link and show instructions
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied! Open Instagram and paste the link in your story or post.');
+            });
+        }
+
+        function shareOnYouTube() {
+            // YouTube doesn't have a direct share URL for external content,
+            // so we'll copy the link and show instructions
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied! You can paste this link in your YouTube video description or community post.');
+            });
+        }
+    </script>
+</body>
+</html> 

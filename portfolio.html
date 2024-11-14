@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nati - Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="portfolio.css">
+    <style>
+        .portfolio-container {
+            padding: 120px 5% 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .portfolio-container h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* Controls Styling */
+        .portfolio-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 1px solid var(--gray-text);
+            background: var(--darker-bg);
+            color: var(--light-text);
+            border-radius: 6px;
+        }
+
+        .filter-sort-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-item {
+            padding: 12px 20px;
+            border: 1px solid var(--gray-text);
+            background: var(--darker-bg);
+            color: var(--light-text);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Grid Layout */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
+        }
+
+        /* Project Card Styling */
+        .portfolio-item {
+            background: var(--darker-bg);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portfolio-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #3498db, #2ecc71);
+            opacity: 0.7;
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .portfolio-content {
+            padding: 0 10px;
+        }
+
+        .portfolio-item h2 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: var(--light-text);
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 5px 12px;
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            color: var(--gray-text);
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .view-project {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .view-project:hover {
+            color: #2ecc71;
+        }
+
+        .view-project svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .view-project:hover svg {
+            transform: translateX(5px);
+        }
+
+        /* Loading and No Results States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray-text);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray-text);
+            display: none;
+        }
+
+        /* Animations */
+        .portfolio-item {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stagger the animations */
+        .portfolio-item:nth-child(1) { animation-delay: 0.1s; }
+        .portfolio-item:nth-child(2) { animation-delay: 0.2s; }
+        .portfolio-item:nth-child(3) { animation-delay: 0.3s; }
+        .portfolio-item:nth-child(4) { animation-delay: 0.4s; }
+        .portfolio-item:nth-child(5) { animation-delay: 0.5s; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .portfolio-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-sort-controls {
+                flex-direction: column;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .no-projects {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-text);
+        }
+
+        .no-projects .emoji {
+            font-size: 3em;
+            margin-bottom: 20px;
+            transform: rotate(90deg);
+            display: inline-block;
+            color: var(--light-text);
+        }
+
+        .no-projects h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: var(--light-text);
+        }
+
+        .no-projects p {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        /* Animation */
+        .no-projects {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html" class="logo">NATI</a>
+        <div class="dropdown">
+            <button class="dropbtn">MENU ☰</button>
+            <div class="dropdown-content">
+                <a href="index.html">HOME</a>
+                <a href="portfolio.html">PORTFOLIO</a>
+                <a href="blog.html">BLOG</a>
+                <a href="contact.html">CONTACT</a>
+            </div>
+        </div>
+    </div>
+
+    <main class="portfolio-container">
+        <h1>PORTFOLIO</h1>
+        
+        <div class="portfolio-controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search projects...">
+            </div>
+            
+            <div class="filter-sort-controls">
+                <select id="categoryFilter" class="control-item">
+                    <option value="all">All Categories</option>
+                </select>
+
+                <select id="sortSelect" class="control-item">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="az">A-Z</option>
+                    <option value="za">Z-A</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">Loading projects...</div>
+        <div id="portfolio-grid" class="portfolio-grid"></div>
+        <div id="noResults" class="no-results">No projects found matching your criteria.</div>
+    </main>
+
+    <script>
+        const SHEET_ID = '1wTn5WRbkFV6OIGT3ouCL8LaPSPjvR-B4XwyodnYVzFk';
+        const SHEET_NAME = 'Sheet1';
+        const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+        
+        let allProjects = [];
+        const categories = new Set();
+
+        async function loadProjects() {
+            const loadingDiv = document.getElementById('loading');
+            const portfolioGrid = document.getElementById('portfolio-grid');
+
+            try {
+                const response = await fetch(GOOGLE_SHEET_URL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47).slice(0, -2));
+                
+                allProjects = jsonData.table.rows.slice(1).map(row => ({
+                    id: row.c[0]?.v,
+                    title: row.c[1]?.v,
+                    description: row.c[2]?.v,
+                    image_url: row.c[3]?.v,
+                    project_url: row.c[4]?.v,
+                    category: row.c[5]?.v
+                }));
+
+                // Populate categories
+                allProjects.forEach(project => {
+                    if (project.category) categories.add(project.category);
+                });
+                populateCategoryFilter();
+
+                loadingDiv.style.display = 'none';
+                renderProjects(allProjects);
+
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                loadingDiv.innerHTML = 'Error loading projects. Please try again later.';
+            }
+        }
+
+        function renderProjects(projects) {
+            const portfolioGrid = document.getElementById('portfolio-grid');
+            const noResults = document.getElementById('noResults');
+            
+            portfolioGrid.innerHTML = '';
+            
+            if (projects.length === 0) {
+                noResults.innerHTML = `
+                    <div class="no-projects">
+                        <div class="emoji">:&#60;</div>
+                        <h2>There is no project published by Nati</h2>
+                        <p>Check back later for awesome projects!</p>
+                    </div>
+                `;
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            
+            projects.forEach((project, index) => {
+                const projectHTML = `
+                    <div class="portfolio-item">
+                        <div class="portfolio-content">
+                            <span class="category-tag">${project.category}</span>
+                            <h2>${project.title}</h2>
+                            <p class="description">${project.description}</p>
+                            <a href="project-template.html?id=${project.id}" class="view-project">
+                                View Details
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                portfolioGrid.innerHTML += projectHTML;
+            });
+        }
+
+        function populateCategoryFilter() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+        }
+
+        function filterAndSortProjects() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const sortOption = document.getElementById('sortSelect').value;
+
+            let filteredProjects = allProjects.filter(project => {
+                const matchesSearch = 
+                    project.title.toLowerCase().includes(searchTerm) ||
+                    project.description.toLowerCase().includes(searchTerm);
+                const matchesCategory = 
+                    categoryFilter === 'all' || project.category === categoryFilter;
+                return matchesSearch && matchesCategory;
+            });
+
+            switch(sortOption) {
+                case 'newest':
+                    filteredProjects.reverse();
+                    break;
+                case 'oldest':
+                    // Already in correct order
+                    break;
+                case 'az':
+                    filteredProjects.sort((a, b) => a.title.localeCompare(b.title));
+                    break;
+                case 'za':
+                    filteredProjects.sort((a, b) => b.title.localeCompare(a.title));
+                    break;
+            }
+
+            renderProjects(filteredProjects);
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', filterAndSortProjects);
+        document.getElementById('categoryFilter').addEventListener('change', filterAndSortProjects);
+        document.getElementById('sortSelect').addEventListener('change', filterAndSortProjects);
+
+        // Initialize
+        window.addEventListener('load', loadProjects);
+    </script>
+</body>
+</html> 
