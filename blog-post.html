@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post - Nati</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html" class="logo">NATI</a>
+        <div class="dropdown">
+            <button class="dropbtn">MENU ☰</button>
+            <div class="dropdown-content">
+                <a href="index.html">HOME</a>
+                <a href="portfolio.html">PORTFOLIO</a>
+                <a href="blog.html">BLOG</a>
+                <a href="contact.html">CONTACT</a>
+            </div>
+        </div>
+    </div>
+
+    <main class="blog-post-container">
+        <div id="loading" class="loading">Loading post...</div>
+        <div id="post-content"></div>
+        <div id="error-message" style="display: none;"></div>
+        <a href="blog.html" class="back-button">← Back to Blog</a>
+    </main>
+
+    <script>
+        const SHEET_ID = '100TLkLsHPkkO8lxyZHeCdK1mtbwbR1Z6VmbdrUrSsA8';
+        const SHEET_NAME = 'Sheet1';
+        const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+        async function loadPost() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
+            
+            if (!postId) {
+                showError('No post ID specified');
+                return;
+            }
+
+            try {
+                const response = await fetch(GOOGLE_SHEET_URL);
+                const text = await response.text();
+                const jsonData = JSON.parse(text.substring(47).slice(0, -2));
+                
+                const posts = jsonData.table.rows.slice(1).map(row => ({
+                    id: row.c[0]?.v,
+                    title: row.c[1]?.v,
+                    preview: row.c[2]?.v,
+                    content: row.c[3]?.v,
+                    date: row.c[4]?.v,
+                    category: row.c[5]?.v
+                }));
+
+                const post = posts.find(p => p.id.toString() === postId);
+                
+                if (!post) {
+                    showError('Post not found');
+                    return;
+                }
+
+                renderPost(post);
+            } catch (error) {
+                console.error('Error loading post:', error);
+                showError('Error loading post. Please try again later.');
+            }
+        }
+
+        function renderPost(post) {
+            document.getElementById('loading').style.display = 'none';
+            const postContent = document.getElementById('post-content');
+            
+            document.title = `${post.title} - Nati`;
+            
+            postContent.innerHTML = `
+                <article class="blog-post">
+                    <header>
+                        <span class="post-date">${formatDate(post.date)}</span>
+                        <span class="category-tag">${post.category}</span>
+                        <h1>${post.title}</h1>
+                    </header>
+                    <div class="post-content">
+                        ${post.content}
+                    </div>
+                </article>
+            `;
+        }
+
+        function formatDate(dateString) {
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            };
+            const formattedDateString = dateString.replace(/\./g, '/');
+            return new Date(formattedDateString).toLocaleDateString('en-US', options);
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        window.addEventListener('load', loadPost);
+    </script>
+
+    <style>
+        .blog-post-container {
+            padding: 120px 5% 50px;
+            max-width: 800px;
+            margin: 0 auto
+        }
+
+        .blog-post header {
+            margin-bottom: 40px;
+        }
+
+        .blog-post h1 {
+            font-size: 2.5em;
+            margin: 20px 0;
+        }
+
+        .post-content {
+            font-size: 1.2em;
+        }
+    </style>
+</body>
+</html> 
