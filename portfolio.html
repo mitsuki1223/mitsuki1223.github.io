@@ -298,10 +298,11 @@
                 allProjects = jsonData.table.rows.slice(1).map(row => ({
                     id: row.c[0]?.v,
                     title: row.c[1]?.v,
-                    description: row.c[2]?.v,
-                    image_url: row.c[3]?.v,
-                    project_url: row.c[4]?.v,
-                    category: row.c[5]?.v
+                    preview: row.c[2]?.v || 'No preview available',
+                    description: row.c[3]?.v,
+                    image_url: row.c[4]?.v,
+                    project_url: row.c[5]?.v,
+                    category: row.c[6]?.v
                 }));
 
                 // Populate categories
@@ -326,14 +327,14 @@
             portfolioGrid.innerHTML = '';
             
             if (projects.length === 0) {
-                noResults.innerHTML = `
+                portfolioGrid.innerHTML = `
                     <div class="no-projects">
                         <div class="emoji">:&#60;</div>
                         <h2>There is no project published by Nati</h2>
                         <p>Check back later for awesome projects!</p>
                     </div>
                 `;
-                noResults.style.display = 'block';
+                noResults.style.display = 'none';
                 return;
             }
             
@@ -345,7 +346,7 @@
                         <div class="portfolio-content">
                             <span class="category-tag">${project.category}</span>
                             <h2>${project.title}</h2>
-                            <p class="description">${project.description}</p>
+                            <p class="description">${project.preview}</p>
                             <a href="project-template.html?id=${project.id}" class="view-project">
                                 View Details
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

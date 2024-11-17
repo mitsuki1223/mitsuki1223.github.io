@@ -64,12 +64,13 @@
                     throw new Error('Project not found');
                 }
 
-                // Get project details
+                // Update indices to match the structure from portfolio.html
                 const title = project.c[1]?.v || '';
-                const description = project.c[2]?.v || '';
-                const imageUrl = project.c[3]?.v || '';
-                const projectUrl = project.c[4]?.v || '';
-                const category = project.c[5]?.v || '';
+                const preview = project.c[2]?.v || '';
+                const description = project.c[3]?.v || '';
+                const imageUrl = project.c[4]?.v || '';
+                const projectUrl = project.c[5]?.v || '';
+                const category = project.c[6]?.v || '';
 
                 // Create image HTML only if imageUrl exists and is not empty
                 const imageHTML = imageUrl ? `

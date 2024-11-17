@@ -21,10 +21,10 @@
     </div>
 
     <main class="blog-post-container">
+        <a href="blog.html" class="back-link">← Back to Blog</a>
         <div id="loading" class="loading">Loading post...</div>
         <div id="post-content"></div>
         <div id="error-message" style="display: none;"></div>
-        <a href="blog.html" class="back-button">← Back to Blog</a>
     </main>
 
     <script>
@@ -127,6 +127,18 @@
 
         .post-content {
             font-size: 1.2em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--gray-text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--light-text);
         }
     </style>
 </body>
