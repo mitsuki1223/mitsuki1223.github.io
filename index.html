@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="bright">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,13 +10,18 @@
 <body>
     <div class="navbar">
         <a href="index.html" class="logo">NATI</a>
-        <div class="dropdown">
-            <button class="dropbtn">MENU ☰</button>
-            <div class="dropdown-content">
-                <a href="index.html">HOME</a>
-                <a href="portfolio.html">PORTFOLIO</a>
-                <a href="blog.html">BLOG</a>
-                <a href="contact.html">CONTACT</a>
+        <div class="nav-controls">
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                <span class="theme-toggle-icon">🌙</span>
+            </button>
+            <div class="dropdown">
+                <button class="dropbtn">MENU ☰</button>
+                <div class="dropdown-content">
+                    <a href="index.html">HOME</a>
+                    <a href="portfolio.html">PORTFOLIO</a>
+                    <a href="blog.html">BLOG</a>
+                    <a href="contact.html">CONTACT</a>
+                </div>
             </div>
         </div>
     </div>
@@ -25,5 +30,36 @@
         <h1>WELCOME</h1>
         <p>Exploring the intersection of creativity and technology</p>
     </section>
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeToggleIcon = themeToggle.querySelector('.theme-toggle-icon');
+        
+        // Check for saved theme preference, otherwise use system preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        } else {
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'bright';
+            document.documentElement.setAttribute('data-theme', systemTheme);
+            updateThemeIcon(systemTheme);
+        }
+
+        // Toggle theme function
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'bright' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        // Update theme icon
+        function updateThemeIcon(theme) {
+            themeToggleIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+    </script>
 </body>
 </html>

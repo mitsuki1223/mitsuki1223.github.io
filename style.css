@@ -1,4 +1,12 @@
-:root {
+html[data-theme='bright'] {
+    --dark-bg: #efdfdfb5;
+    --darker-bg: #dedada;
+    --light-text: #000000;
+    --gray-text: #716f6f;
+    --hover-color: #f7f6e279;
+}
+
+html[data-theme='dark'] {
     --dark-bg: #000000;
     --darker-bg: #111111;
     --light-text: #ffffff;
@@ -28,6 +36,35 @@ body {
     box-sizing: border-box;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     z-index: 1000;
+}
+
+.nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.theme-toggle {
+    background: transparent;
+    border: 1px solid var(--light-text);
+    color: var(--light-text);
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background-color: var(--light-text);
+    color: var(--dark-bg);
+}
+
+.theme-toggle-icon {
+    font-size: 16px;
+    line-height: 1;
 }
 
 .logo {

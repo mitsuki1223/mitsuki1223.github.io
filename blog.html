@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="bright">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,13 +10,18 @@
 <body>
     <div class="navbar">
         <a href="index.html" class="logo">NATI</a>
-        <div class="dropdown">
-            <button class="dropbtn">MENU ☰</button>
-            <div class="dropdown-content">
-                <a href="index.html">HOME</a>
-                <a href="portfolio.html">PORTFOLIO</a>
-                <a href="blog.html">BLOG</a>
-                <a href="contact.html">CONTACT</a>
+        <div class="nav-controls">
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                <span class="theme-toggle-icon">🌙</span>
+            </button>
+            <div class="dropdown">
+                <button class="dropbtn">MENU ☰</button>
+                <div class="dropdown-content">
+                    <a href="index.html">HOME</a>
+                    <a href="portfolio.html">PORTFOLIO</a>
+                    <a href="blog.html">BLOG</a>
+                    <a href="contact.html">CONTACT</a>
+                </div>
             </div>
         </div>
     </div>
@@ -48,6 +53,7 @@
         <div id="noResults" class="no-results"></div>
     </main>
 
+    <script src="theme.js"></script>
     <script>
         // Updated Sheet ID for blog posts
         const SHEET_ID = '100TLkLsHPkkO8lxyZHeCdK1mtbwbR1Z6VmbdrUrSsA8';
@@ -376,4 +382,4 @@
         }
     </style>
 </body>
-</html> 
+</html>
