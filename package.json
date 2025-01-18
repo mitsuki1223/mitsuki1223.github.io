@@ -2,6 +2,7 @@
   "name": "astro-bento-portfolio",
   "type": "module",
   "version": "0.0.2",
+  "packageManager": "pnpm@8.15.0",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -42,7 +43,5 @@
     "sanitize-html": "^2.13.1",
     "typescript": "^5.7.2",
     "unocss": "^0.63.4"
-  },
-  "packageManager": "pnpm@8.15.0"
   }
 }
