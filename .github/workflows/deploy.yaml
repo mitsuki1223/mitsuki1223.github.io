@@ -29,7 +29,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
         with:
-          version: 8.6.0 # Specify your desired PNPM version
+          version: 8.15.0 # Specify your desired PNPM version
 
       - name: Install, build, and upload your site
         uses: withastro/action@v3
